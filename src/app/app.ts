@@ -9,5 +9,5 @@ import { OrderPage } from './pages/order-page/order-page';
   styleUrl: './app.css'
 })
 export class App {
-  protected readonly title = signal('MacDrive');
+  protected readonly title = signal('MacDrive Exo');
 }

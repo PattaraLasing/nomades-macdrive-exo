@@ -1,6 +1,5 @@
-import { Component, OnInit, signal } from '@angular/core';
-import { Category } from '../../interfaces';
-import { getRecipes } from '../../api-service';
+import { Component, inject, signal } from '@angular/core';
+import { OrderService } from '../../services/order-service/order-service';
 
 @Component({
   selector: 'app-order-page',
@@ -8,11 +7,6 @@ import { getRecipes } from '../../api-service';
   templateUrl: './order-page.html',
   styleUrl: './order-page.css',
 })
-export class OrderPage implements OnInit {
-  protected readonly categories = signal<Category[]>([]);
-
-  async ngOnInit() {
-    const data = await getRecipes();
-    this.categories.update(()=> data);
-  }
+export class OrderPage {
+  protected readonly categories = inject(OrderService).categories;
 }

@@ -1,6 +1,5 @@
-import { Component, inject, signal } from '@angular/core';
-import { OrderService } from '../../services/order-service/order-service';
-import { ActivatedRoute } from '@angular/router';
+import { Component, inject, OnInit } from '@angular/core';
+import { ApiService } from '../../services/api-service/api-service';
 
 @Component({
   selector: 'app-order-page',
@@ -8,12 +7,15 @@ import { ActivatedRoute } from '@angular/router';
   templateUrl: './order-page.html',
   styleUrl: './order-page.css',
 })
-export class OrderPage {
-  protected readonly categories = inject(OrderService).categories;
-  protected readonly route = inject(ActivatedRoute);
+export class OrderPage implements OnInit {
+  protected readonly categories = inject(ApiService).categories;
+  
+  
+  
+  //protected readonly route = inject(ActivatedRoute);
 
   ngOnInit(): void {
-    const params = this.route.snapshot.queryParams;
-    console.log(params);
+    //const params = this.route.snapshot.queryParams;
+    console.log(this.categories);
   }
 }

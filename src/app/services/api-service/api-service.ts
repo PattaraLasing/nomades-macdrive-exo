@@ -1,12 +1,12 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import { Category, Database } from '../../interfaces';
+import { Category, Database } from '../../interfaces/interfaces';
 
 @Injectable({
   providedIn: 'root',
 })
-export class OrderService {
+export class ApiService {
 
   public readonly categories = signal<Category[]>([]);
 
@@ -23,6 +23,7 @@ export class OrderService {
     const request = this._http.get<Database>(this.url);
     const json: Database = await firstValueFrom(request);
     const result = json.data;
+    this.categories.set(result);
     return result;
   }
 
@@ -30,6 +31,7 @@ export class OrderService {
     console.log('Order send to database...', order);
   }
 
+  /*Mock Database*/
   async getOrderById(id: string) {
     const DATABASE: {
       orderId: string;

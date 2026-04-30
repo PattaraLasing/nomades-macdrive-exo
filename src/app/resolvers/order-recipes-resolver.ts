@@ -1,5 +1,5 @@
 import { ResolveFn } from '@angular/router';
-import { OrderService } from '../services/order-service/order-service';
+import { ApiService } from '../services/api-service/api-service';
 import { inject } from '@angular/core';
 
 export const orderDetailResolver: ResolveFn<{
@@ -10,6 +10,6 @@ export const orderDetailResolver: ResolveFn<{
     price: number
   }[]
 }> = (route, state) => {
-  const service = inject(OrderService);
+  const service = inject(ApiService);
   return service.getOrderById(route.params['id']);
 };

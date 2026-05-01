@@ -1,5 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { ApiService } from '../../services/api-service/api-service';
+import { FormGroup, FormControl, FormArray, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-order-page',
@@ -8,17 +9,27 @@ import { ApiService } from '../../services/api-service/api-service';
   styleUrl: './order-page.css',
 })
 export class OrderPage implements OnInit {
+  
   protected readonly categories = inject(ApiService).categories;
   
   /**
    * TODO : mettre en place un formulaire réactif pour la prise de commande
-   * chaque recette choisie devra être ajouté à un FormArray pour regrouper 
+   * - chaque recette choisie devra être ajouté à un FormArray pour regrouper 
    * les recettes entre elles
    * 
    * ajouter également les validateurs pour la commande :
    * - la commande doit compter au moins une recette
    * - le montant total minimum doit être à 5frs
    */
+
+  /**
+   * Formulaire de commande :
+   */
+  orderForm = new FormGroup({
+    createDate: new FormControl(''),
+    recipes: new FormArray([], Validators.minLength(1)),
+    totalAmount: new FormControl(0, Validators.min(5)),
+  });
   
   //protected readonly route = inject(ActivatedRoute);
 
@@ -114,4 +125,9 @@ export class OrderPage implements OnInit {
    * - mettre ce projet sur mon github en open source et présenter le
    * à la prochaine occasion :D 
    */
+
+  //-------------------- documentation ------------------
+  /**
+   * TODO : générer la documentation avec compodoc
+  */
 }

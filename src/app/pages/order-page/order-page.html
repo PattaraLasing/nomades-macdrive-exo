@@ -12,7 +12,7 @@
   @for (category of categories(); track category.uuid) {
     <ul>
       @for (recipe of category.recipes; track recipe.uuid) {
-        <li>{{ recipe.title }}</li>
+        <li class="recipe" (click)="addRecipe($event, category)">{{ recipe.title }}</li>
       }
     </ul>
   }

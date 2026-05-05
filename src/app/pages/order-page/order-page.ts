@@ -1,6 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { ApiService } from '../../services/api-service/api-service';
 import { FormGroup, FormControl, FormArray, Validators } from '@angular/forms';
+import { Recipe } from '../../interfaces/interfaces';
 
 @Component({
   selector: 'app-order-page',
@@ -27,12 +28,11 @@ export class OrderPage implements OnInit {
    */
   orderForm = new FormGroup({
     createDate: new FormControl(''),
-    recipes: new FormArray([], Validators.minLength(1)),
+    recipes: new FormArray([new FormControl()], Validators.minLength(1)),
     totalAmount: new FormControl(0, Validators.min(5)),
   });
   
   //protected readonly route = inject(ActivatedRoute);
-
   ngOnInit(): void {
     //const params = this.route.snapshot.queryParams;
     console.log(this.categories);
@@ -43,12 +43,13 @@ export class OrderPage implements OnInit {
    * ajouter le choix de l'utilisateur dans le formulaire
    * connecter la méthode sur l'élément html de chaque recette avec
    * un évènement type click
-   * @param $event 
-   * @param category 
    */
-  addRecipe($event: any, category: any) {
-    console.log($event);
-    console.log(category);
+  addRecipe(recipe: Recipe) {
+    this.orderForm.setValue({
+      createDate: '',
+      recipes: [recipe],
+      totalAmount: 0
+    });
   }
 
   /**

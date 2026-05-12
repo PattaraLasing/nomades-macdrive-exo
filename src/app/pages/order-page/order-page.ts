@@ -1,18 +1,35 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { ApiService } from '../../services/api-service/api-service';
-import { FormGroup, FormControl, FormArray, Validators } from '@angular/forms';
+import { FormGroup, FormControl, FormArray, Validators, AbstractControl } from '@angular/forms';
 import { Recipe } from '../../interfaces/interfaces';
+import { ActivatedRoute } from '@angular/router';
+import { FireService, OrderDataInterface } from '../../services/fire/fire-service';
+import { minPriceValidator } from '../../validators/min-price.validator';
+import { TotalItemPipe } from "../../pipes/total-item-pipe";
 
 @Component({
   selector: 'app-order-page',
-  imports: [],
+  imports: [TotalItemPipe],
   templateUrl: './order-page.html',
   styleUrl: './order-page.css',
 })
 export class OrderPage implements OnInit {
-  
+
+  private readonly _fireService = inject(FireService);
+
   protected readonly categories = inject(ApiService).categories;
-  
+  protected readonly route = inject(ActivatedRoute);
+  protected readonly selectedCategoryUuid = signal<string | null>(null);
+
+  protected readonly categorieDisplayed = computed(() => {
+    const selectedCategoryUuid = this.selectedCategoryUuid();
+    if (selectedCategoryUuid) {
+      return this.categories().filter(category => category.uuid === selectedCategoryUuid);
+    }
+    return this.categories();
+  });
+
+
   /**
    * TODO : mettre en place un formulaire réactif pour la prise de commande
    * - chaque recette choisie devra être ajouté à un FormArray pour regrouper 
@@ -26,15 +43,22 @@ export class OrderPage implements OnInit {
   /**
    * Formulaire de commande :
    */
-  orderForm = new FormGroup({
-    createDate: new FormControl(''),
-    recipes: new FormArray([new FormControl()], Validators.minLength(1)),
-    totalAmount: new FormControl(0, Validators.min(5)),
+  protected readonly orderForm = new FormGroup({
+    createAt: new FormControl(''),
+    recipes: new FormArray<AbstractControl<{
+      uuid: string;
+      title: string;
+      price: number;
+      count: number;
+    }>>([], Validators.compose([
+      Validators.required,
+      Validators.minLength(1),
+      minPriceValidator(10), // custom validator to check if total price is at least 10
+    ])),
   });
-  
-  //protected readonly route = inject(ActivatedRoute);
+
   ngOnInit(): void {
-    //const params = this.route.snapshot.queryParams;
+    const params = this.route.snapshot.queryParams;
     console.log(this.categories);
   }
 
@@ -44,12 +68,32 @@ export class OrderPage implements OnInit {
    * connecter la méthode sur l'élément html de chaque recette avec
    * un évènement type click
    */
-  addRecipe(recipe: Recipe) {
-    this.orderForm.setValue({
-      createDate: '',
-      recipes: [recipe],
-      totalAmount: 0
-    });
+  async addRecipe(recipeUuid: string) {
+    const recipe = this.categories().flatMap(category => category.recipes).find(r => r.uuid === recipeUuid);
+    if (!recipe) {
+      throw new Error(`Recipe with uuid ${recipeUuid} not found`);
+    }
+    const recipesFormArray = this.orderForm.get('recipes') as FormArray;
+    // have existing recipe in form array, increase count
+    const existingRecipeIndex = recipesFormArray.controls.findIndex(control => control.value.uuid === recipeUuid);
+    if (existingRecipeIndex !== -1) {
+      const existingRecipeControl = recipesFormArray.at(existingRecipeIndex) as FormGroup;
+      existingRecipeControl.patchValue({
+        count: existingRecipeControl.value.count + 1,
+      });
+    } 
+    // no existing recipe in form array, add new recipe
+    else {
+      // add new recipe to form array
+      recipesFormArray.push(new FormGroup({
+        uuid: new FormControl(recipe.uuid),
+        title: new FormControl(recipe.title),
+        price: new FormControl(recipe.price),
+        count: new FormControl(1),
+      }));
+    }
+
+    console.log(this.orderForm.value, this.orderForm.valid);
   }
 
   /**
@@ -57,13 +101,25 @@ export class OrderPage implements OnInit {
    * la catégorie sélectionnée par l'utilisateur
    * connecter la méthode sur l'élément html de chaque catégorie avec
    * un évènement type click
-   * @param $event 
-   * @param category 
    */
-  selectCategory($event: any, category: any) {
-    console.log($event);
-    console.log(category);
+
+  async submitOrder() {
+    this.orderForm.patchValue({
+      createAt: new Date().toISOString(),
+    });
+    console.log(this.orderForm.value, this.orderForm.valid);
+    if (!this.orderForm.valid) {
+      throw new Error('Invalide order value');
+    }
+    const result = await this._fireService.saveOrder(
+      this.orderForm.value as OrderDataInterface
+    );    
+    alert(`Order submitted! Order number is: ${result.id}.`);
+    this.orderForm.reset();
+    (this.orderForm.get('recipes') as FormArray).clear();
+    console.log(this.orderForm.value);
   }
+
 
   /**
    * TODO : créer un pipe pour filtrer les recettes affichées

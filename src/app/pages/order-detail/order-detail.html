@@ -1,1 +1,8 @@
 <p>order-detail works!</p>
+<p>{{orderDetail()?.orderId}}</p>
+
+<ul>
+  @for (recipe of orderDetail()?.recipes; track recipe.title) {
+    <li>{{recipe.title}}</li>
+  }
+</ul>

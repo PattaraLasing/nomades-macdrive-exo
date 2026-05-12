@@ -1,23 +1,27 @@
+<a routerLink="/admin">go to admin</a>
+
 <div>
   <h1>Categories</h1>
   <ul>
     @for (category of categories();let i = $index; track i) {
-      <li>{{ category.title }}</li>
+      <li (click)="selectedCategoryUuid.set(category.uuid)">{{ category.title }}</li>
     }
   </ul>
 </div>
 
 <div>
   <h1>Recipes</h1>
-  @for (category of categories(); track category.uuid) {
+  @for (category of categorieDisplayed(); track category.uuid) {
     <ul>
       @for (recipe of category.recipes; track recipe.uuid) {
-        <li class="recipe">{{ recipe.title }}</li>
+        <li (click)="addRecipe(recipe.uuid)">
+          {{ recipe.title }} - {{ recipe.price }} - Quantity: {{ recipe | totalItem: orderForm.value }}
+        </li>
       }
     </ul>
   }
 </div>
 
 <div>
-  <button>Order Now</button>
+  <button [disabled]="!orderForm.valid" (click)="submitOrder()">Order Now</button>
 </div>

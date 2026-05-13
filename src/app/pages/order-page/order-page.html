@@ -2,6 +2,7 @@
 
 <div>
   <h1>Categories</h1>
+  <button (click)="selectedCategoryUuid.set(null)">reset categorie</button>
   <ul>
     @for (category of categories();let i = $index; track i) {
       <li (click)="selectedCategoryUuid.set(category.uuid)">{{ category.title }}</li>

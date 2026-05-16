@@ -1,4 +1,4 @@
-import { TotalItemPipe } from './total-item-pipe';
+import { TotalItemPipe } from "./total-item-pipe";
 
 describe('TotalItemPipe', () => {
   it('create an instance', () => {

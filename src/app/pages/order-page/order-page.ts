@@ -4,12 +4,13 @@ import { FormGroup, FormControl, FormArray, Validators, AbstractControl } from '
 import { ActivatedRoute } from '@angular/router';
 import { FireService, OrderDataInterface } from '../../services/fire/fire-service';
 import { minPriceValidator } from '../../validators/min-price.validator';
-import { TotalItemPipe } from "../../pipes/total-item-pipe";
+import { TotalItemPipe } from "../../pipes/total-item/total-item-pipe";
 import { Recipe } from '../../interfaces/interfaces';
+import { TotalOrderPipe } from '../../pipes/total-order/total-order-pipe';
 
 @Component({
   selector: 'app-order-page',
-  imports: [TotalItemPipe],
+  imports: [TotalItemPipe, TotalOrderPipe],
   templateUrl: './order-page.html',
   styleUrl: './order-page.css',
 })
@@ -114,16 +115,7 @@ export class OrderPage implements OnInit {
 
 
   /**
-   * TODO : créer un pipe pour filtrer les recettes affichées
-   * en fonction de la catégorie sélectionnée par l'utilisateur
-   * et appliquer le pipe sur la boucle for de html
-   * 
-   */
-
-  /**
    * TODO PIPES
-   * - créer un pipe pour afficher la quantité choisi sur chaque recette
-   * - créer un pipe pour afficher le prix total de la commande sur le bouton 'order'
    * - créer un pipe pour formater le prix de chaque recette (diviser le prix par 100)
    * - utiliser les pipes créer ainsi que le 'currencyPipe' de Angular pour 
    * mettre en forme l'affichage des prix dans le html

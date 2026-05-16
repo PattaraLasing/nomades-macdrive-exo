@@ -1,10 +1,10 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import JSConfetti from 'js-confetti'
 
 @Component({
   selector: 'app-success-page',
-  imports: [],
+  imports: [RouterLink],
   templateUrl: './success-page.html',
   styleUrl: './success-page.css',
 })

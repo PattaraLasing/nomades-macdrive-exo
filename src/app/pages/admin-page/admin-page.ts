@@ -13,5 +13,5 @@ import { TotalOrderPipe } from '../../pipes/total-order/total-order-pipe';
 export class AdminPage {
 
   private readonly _fireServie = inject(FireService);
-  public readonly order$ = this._fireServie.loadOrder();
+  public readonly orders$ = this._fireServie.loadOrder();
 }

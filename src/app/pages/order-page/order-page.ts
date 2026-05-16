@@ -1,17 +1,12 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { ApiService } from '../../services/api-service/api-service';
-import { FormGroup, FormControl, FormArray, Validators, AbstractControl } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
-import { FireService } from '../../services/fire/fire-service';
-import { minPriceValidator } from '../../validators/min-price.validator';
 import { TotalItemPipe } from "../../pipes/total-item/total-item-pipe";
-import { OrderDataInterface, Recipe } from '../../interfaces/interfaces';
-import { TotalOrderPipe } from '../../pipes/total-order/total-order-pipe';
 import { OrderService } from '../../services/order/order-service';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-order-page',
-  imports: [TotalItemPipe, TotalOrderPipe],
+  imports: [TotalItemPipe, RouterLink],
   templateUrl: './order-page.html',
   styleUrl: './order-page.css',
 })

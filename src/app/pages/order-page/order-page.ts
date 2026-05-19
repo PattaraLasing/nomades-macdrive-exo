@@ -1,29 +1,26 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { ApiService } from '../../services/api-service/api-service';
-import { FormGroup, FormControl, FormArray, Validators, AbstractControl } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
-import { FireService, OrderDataInterface } from '../../services/fire/fire-service';
-import { minPriceValidator } from '../../validators/min-price.validator';
 import { TotalItemPipe } from "../../pipes/total-item/total-item-pipe";
-import { Recipe } from '../../interfaces/interfaces';
-import { TotalOrderPipe } from '../../pipes/total-order/total-order-pipe';
+import { OrderService } from '../../services/order/order-service';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-order-page',
-  imports: [TotalItemPipe, TotalOrderPipe],
+  imports: [TotalItemPipe, RouterLink],
   templateUrl: './order-page.html',
   styleUrl: './order-page.css',
 })
-export class OrderPage implements OnInit {
+export class OrderPage {
 
-  private readonly _fireService = inject(FireService);
+  private readonly _orderService = inject(OrderService);
 
-  protected readonly categories = inject(ApiService).categories;
-  protected readonly route = inject(ActivatedRoute);
+  //protected readonly route = inject(ActivatedRoute);
+  protected readonly orderForm = this._orderService.orderForm;
 
   /**
    * Identifier la catégorie sélectionnée par l'utilisateur
    */
+  protected readonly categories = inject(ApiService).categories;
   protected readonly selectedCategoryUuid = signal<string | null>(null);
   protected readonly categorieDisplayed = computed(() => {
     const selectedCategoryUuid = this.selectedCategoryUuid();
@@ -33,84 +30,9 @@ export class OrderPage implements OnInit {
     return this.categories();
   });
 
-
-  /**
-   * Formulaire réactif pour la prise de commande
-   * - chaque recette choisie devra être ajouté à un FormArray pour regrouper 
-   * les recettes entre elles
-   * 
-   * Ajouter les validateurs pour la commande :
-   * - la commande doit compter au moins une recette
-   * - le montant total minimum doit être à 10frs
-   */
-  protected readonly orderForm = new FormGroup({
-    createAt: new FormControl(''),
-    recipes: new FormArray<AbstractControl<{
-      uuid: string;
-      title: string;
-      price: number;
-      count: number;
-    }>>([], Validators.compose([
-      Validators.required,
-      Validators.minLength(1),
-      minPriceValidator(10), // custom validator to check if total price is at least 10
-    ])),
-  });
-
-  ngOnInit(): void {
-    const params = this.route.snapshot.queryParams;
-  }
-
-  /**
-   * Ajouter le choix de l'utilisateur dans le formulaire
-   * - connecter la méthode sur l'élément html de chaque recette avec un évènement type click
-   */
-  async addRecipe(recipeUuid: string): Promise<void> {
-    const recipe: Recipe | undefined = this.categories().flatMap(category => category.recipes).find(r => r.uuid === recipeUuid);
-    if (!recipe) {
-      throw new Error(`Recipe with uuid ${recipeUuid} not found`);
-    }
-
-    const recipesFormArray = this.orderForm.get('recipes') as FormArray;
-    // have existing recipe in form array, increase count
-    const existingRecipeIndex: number = recipesFormArray.controls.findIndex(control => control.value.uuid === recipeUuid);
-    if (existingRecipeIndex !== -1) {
-      const existingRecipeControl = recipesFormArray.at(existingRecipeIndex) as FormGroup;
-      existingRecipeControl.patchValue({
-        count: existingRecipeControl.value.count + 1,
-      });
-    }
-    // no existing recipe in form array, add new recipe
-    else {
-      // add new recipe to form array
-      recipesFormArray.push(new FormGroup({
-        uuid: new FormControl(recipe.uuid),
-        title: new FormControl(recipe.title),
-        price: new FormControl(recipe.price),
-        count: new FormControl(1),
-      }));
-    }
-  }
-
-  /**
-   * Enregistrer la commande et l'envoyer à Firebase
-   */
-  async submitOrder(): Promise<void> {
-    this.orderForm.patchValue({
-      createAt: new Date().toISOString(),
-    });
-
-    if (!this.orderForm.valid) {
-      throw new Error('Invalide order value');
-    }
-
-    const result = await this._fireService.saveOrder(
-      this.orderForm.value as OrderDataInterface
-    );
-
-    alert(`Order submitted! Order number is: ${result.id}.`);
-    this.orderForm.reset();
-    (this.orderForm.get('recipes') as FormArray).clear();
+  async addRecipe(recipeUuid: string) {
+    const recipes = this.categories().flatMap(c => c.recipes);
+    await this._orderService.addRecipe(recipes, recipeUuid);
   }
 
 

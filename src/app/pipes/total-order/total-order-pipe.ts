@@ -1,5 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { OrderDataInterface } from '../../services/fire/fire-service';
+import { OrderDataInterface } from '../../interfaces/interfaces';
 
 @Pipe({
   name: 'totalOrder',

@@ -23,3 +23,14 @@ export interface Recipe {
   uuid:              string;
 }
 
+export interface OrderDataInterface {
+  createAt: string;
+  recipes: {
+    uuid: string;
+    title: string;
+    price: number;
+    count: number;
+  }[];
+  uid: string;
+  _id: string;
+}

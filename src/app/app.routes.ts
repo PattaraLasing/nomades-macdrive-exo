@@ -10,28 +10,30 @@ export const routes: Routes = [
         component: OrderPage
     },
     {
-        path: 'order-detail-page',
+        path: 'checkout',
+        loadComponent: () => import('./pages/checkout-page/checkout-page').then(c => c.CheckoutPage)
+    },
+    {
+        path: 'succes',
+        loadComponent: () => import('./pages/success-page/success-page').then(c => c.SuccessPage)
+    },
+    {
+        path: 'admin',
+        canActivate: [authGuard],
         children: [
+            {
+                path: '',
+                loadComponent: () => import('./pages/admin-page/admin-page')
+                    .then(c => c.AdminPage),
+            },
             {
                 path: ':id',
                 component: OrderDetail,
                 resolve: {
                     orderDetail: orderDetailResolver
                 }
-            },
-            {
-                path: '',
-                redirectTo: '/order-page',
-                pathMatch: 'full',
             }
         ]
-    },
-    {
-        path: 'admin',
-        loadComponent: () => import('./pages/admin-page/admin-page')
-            .then(c => c.AdminPage),
-        canActivate: [authGuard]
-        // component: AdminPage
     },
     {
         path: '',

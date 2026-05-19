@@ -1,0 +1,19 @@
+<p>Your order detail:</p>
+
+<ul>
+  @for (recipe of orderForm.value.recipes; track recipe.uuid) {
+    <li>{{recipe.count}}x {{recipe.title}}</li>
+  }
+</ul>
+
+<p>Do you want sweet?</p>
+<ul>
+  @for (recipe of category()?.recipes; track recipe.uuid) {
+    <li (click)="handleAddRecipe(recipe.uuid)">{{recipe.title}}</li>
+  }
+</ul>
+
+<button routerLink="/order-page">back to order</button>
+<button [disabled]="!orderForm.valid" (click)="handleSubmitOrder()">
+  Order Now - {{ $any(orderForm.value) | totalOrder | currency: 'CHF ': 'symbol' : '1.2-2' }}
+</button>

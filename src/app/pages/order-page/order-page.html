@@ -24,5 +24,7 @@
 </div>
 
 <div>
-  <button [disabled]="!orderForm.valid" (click)="submitOrder()">Order Now {{ $any(orderForm.value) | totalOrder}}</button>
+  <button [disabled]="!orderForm.valid" routerLink="/checkout">
+    Continue  
+  </button>
 </div>
